@@ -19,6 +19,43 @@ env:
 
 
 jobs:
+  
+  build-jupyter-nodebook:
+    runs-on: ubuntu-lastest
+    
+    steps:
+      - name: clone jupyter-docker-stack
+        run: git clone https://github.com/jupyter/docker-stacks.git
+        
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+        
+      - name: Log into registry ${{ env.REGISTRY }}
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@28218f9b04b4f3f62068d7b6ce6ca5b26e35336c
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: ${{ env.REGISTRY }}/kimjunil/jupyter-base-notebook
+          
+      - name: Base notebook Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: ./docker-stacks/base-notebook/
+          file: ./docker-stacks/base-notebook/Dockerfile
+          platforms: linux/amd64
+          build-args: |
+            PYTHON_VERSION=3.8
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+
   build:
 
     runs-on: ubuntu-latest
