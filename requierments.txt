@@ -1,0 +1,4 @@
+jupyterhub==2.2.2
+jupyter-server-proxy
+jupyter-vscode-proxy
+jupyter-tensorboard-proxy
